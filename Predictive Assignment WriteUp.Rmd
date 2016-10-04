@@ -142,14 +142,12 @@ fitModel <- train(classe ~., method="rpart", data=training.clean, trControl = tc
 
 results <- confusionMatrix(testing.clean$classe, predict(fitModel, newdata = testing.clean))
 
-plot(fitModel, ylim=c(0.9, 1))
-
 ### model fitting after preprocess
 fitModelAfter <- train(classe ~., method="rpart", preProcess = c("center", "scale"), data=training.clean,trControl = tc)
 
 resultsAfter <- confusionMatrix(testing.clean$classe, predict(fitModelAfter, newdata = testing.clean))
 
-plot(fitModelAfter, ylim=c(0.9, 1))
+
 ### 1st model
 results
 
