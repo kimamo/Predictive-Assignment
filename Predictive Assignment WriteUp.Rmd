@@ -227,6 +227,6 @@ for(var in 1:10){
 ```
 
 ##### Random Forest accuracy is 0.99 hence more accurate than earlier prediction.
-###### Con: quite a lengthy process unlike other predition models
+###### Con: quite a lengthy process unlike other prediction models
 
 
