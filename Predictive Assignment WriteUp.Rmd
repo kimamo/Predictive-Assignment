@@ -150,7 +150,7 @@ resultsAfter
 
 #### Even with PreProcessing, the Accuracy is around 0.5 its not convincing so not acceptable
 
- ## Random Forest
+#### Use Random Forest
  
 ```{r randomForest}
  
