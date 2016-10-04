@@ -1,0 +1,240 @@
+---
+title: ' Machine Learning | Prediction Assignment'
+author: "Kimamö Wachira"
+date: "August 27, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+    knitr::opts_chunk$set(echo = TRUE)
+
+    setwd("~/Google Drive/Coursera/Data Science Specialization/Machine Learning/Predictive Assignment")
+```
+
+```{r} 
+
+library(caret)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(e1071)
+library(lubridate)
+library(RColorBrewer) 
+
+```
+
+## Background
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: <http://groupware.les.inf.puc-rio.br/har> (see the section on the Weight Lifting Exercise Dataset).
+
+```{r get data, cache=TRUE}
+  #set.seed <- 10
+
+## Download and read the training data
+trainingFile <-  "pml-training.csv"
+if (!file.exists(trainingFile)) {
+    url <-
+    "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+    trainingFile <- download.file(url, destfile = trainingFile)
+  }
+
+trainingData <-
+    read.csv(trainingFile, na.strings = c("NA", "#DIV/0!", ""))
+
+undefIndex <- sapply(training, (function(i) i == "#DIV/0!"))
+trainingData[undefIndex]<- NA
+
+head(trainingData, 10)
+                     
+                     
+                     
+
+## Download and read the testing data
+testingFile <-  "pml-testing.csv"
+if (!file.exists(testingFile)) {
+    url <-
+    "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+    testingFile <- download.file(url, destfile = testingFile)
+  }
+
+testingData <-
+    read.csv(testingFile, na.strings = c("NA", "#DIV/0!", ""))
+
+
+
+```
+
+
+## Data Exploration and Cleaning
+###### use variables in testingData only and disregard the other columns in trainingData set that not needed and exclude NA and Empty columns
+
+```{r 'data cleaning'  }
+
+# testVariables <-
+#   names(testingData[, colSums(is.na(testingData)) == 0])[8:59]
+#   head(testVariables)
+#   
+  
+# exclude NA and Empty columns
+  trainingData <-
+    trainingData[, names(trainingData)[sapply(trainingData, function(x)
+    ! (any(is.na(x) | x == "")))]]
+
+# Remove columns with Near Zero Values  
+  trainingData <-
+    trainingData[, names(trainingData)[!(nzv(trainingData, saveMetrics = T)[, 4])]]
+  
+  trainingData <- trainingData[,-1]
+  trainingData <- trainingData[, c(1:3, 5:58)]
+  
+ ## relevant data for prediction only
+  trainingData <- trainingData[,-(1:6)]
+  
+# # set the variables necessary to use as per test dataset
+#   trainingData <- trainingData[, c(testVariables, "classe")]
+#   testingData <- testingData[, c(testVariables, "problem_id")]
+#   
+#   dim(trainingData); dim(testingData); 
+```
+
+## create DataPartition
+###### 80% data goes to training set and the rest to testing set
+```{r, createDataPartition}
+set.seed(seed)
+
+# Divide the trainingData into training set & testing set
+inTrain <- createDataPartition(trainingData$classe, p=0.8, list=FALSE)
+training <- trainingData[inTrain,]
+testing <- trainingData[-inTrain,]
+
+dim(training)
+dim(testing)
+
+```
+
+## Build  a fit Model
+#### using Random Forest to build a predictive model
+```{r, "build Random Forest model"}
+  require(caret)
+  require(rpart)
+
+  fitControl <- trainControl(method="cv", number=10, repeats=3)
+  rfModel <- train(classe ~ ., 
+                    data=training, 
+                    method="rf", 
+                    trControl=fitControl,
+                    preProcess=c("center", "scale"),
+                    ntree=2000
+                  )
+  
+  
+  # create standalone model using all training data
+set.seed(seed)
+finalModel <- randomForest(classe~., training, mtry=2, ntree=2000)
+# make a predictions on "new data" using the final model
+final_predictions <- predict(rfModel, testing[,1:60])
+confusionMatrix(final_predictions, testing$Class)
+  rfModel
+  
+    ## track the changes  varImp(rfModel)
+   varImp(rfModel)
+
+ print(rfModel) # display the fitModel results
+
+ # plot fitModel
+ plot(rfModel, uniform=TRUE, main="Random Forest") 
+ 
+ print(rfModel$finalModel, digits = getOption("digits") - 2)
+```
+
+### Predictions: 
+###### prediction against training set
+```{r "training set prediction" }
+   set.seed(seed)
+   rfPredict <- predict(rfModel, newdata=training)
+   print(confusionMatrix(training$classe, rfPredict))
+ 
+```
+
+```{r find accuracy and error}
+  accuracy <- postResample(rfPredict, training$classe)
+  err <-1 - as.numeric(confusionMatrix(training$classe, rfPredict)$overall[1])
+  
+  sprintf("Accuracy :  %s  with error rate:  %s", accuracy[1], err)
+  
+ 
+```
+ 
+###### prediction against testing set
+```{r "testing predictive model"}
+    set.seed(seed)
+   rfTestPredict <- predict(rfModel, newdata=testing)
+   print(confusionMatrix(testing$classe, rfTestPredict))
+
+```
+ 
+```{r "find test set accuracy "}
+  
+  testAccuracy <- postResample(rfTestPredict, testing$classe)
+  testErr <-1 - as.numeric(confusionMatrix(testing$classe, rfTestPredict)$overall[1])
+  
+  sprintf("Test Accuracy :  %s  with error rate:  %s", testAccuracy[1], testErr)
+  
+```
+
+```{r}
+  print(predict(rfModel, newdata=testing))
+
+# cross validation (10-fold cross validation--> split data into 10 partitions, run the classifier for 10 times)
+set.seed(100)
+k=10
+parts <- split(testing,f = rep_len(1:k, nrow(testing) ))
+
+# make a help function to combine the list of 10 equal size data
+combinedata <- function(index){
+  data <- parts[[index[1]]]
+  for (i in 2:(length(index))) data <- rbind(data, parts[[index[i]]])
+  data
+}
+
+# set empty matrix to store result
+cross.validation.result <- as.data.frame(matrix(nrow=7, ncol=k))
+
+index <- 1:10
+
+for (i in 1:10){
+  currentdata <- combinedata(index[index!= i])
+  model <- randomForest(classe~., data=currentdata)
+  result <- confusionMatrix(parts[[i]]$classe, predict(model, newdata=parts[[i]]))
+  cross.validation.result[,i] <- result$overall
+}
+
+```
+
+######  
+```{r write to file} 
+  
+## write to a file for Assignement Quiz answers
+createQuizAnswer = function(x) {
+    n = length(x)
+    
+    QuizAnswerDir <- "Quiz-Answers"
+    
+    
+    for (i in 1:n) {
+          filename = paste0("problem_id_", i, ".txt")
+          write.table(
+                        x[i],
+                        file = file.path(QuizAnswerDir, filename),
+                        quote = FALSE,
+                        row.names = FALSE,
+                        col.names = FALSE
+                    )
+                  }
+}
+#createQuizAnswer(rfPredict)
+
+```
+
+
+
