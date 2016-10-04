@@ -223,7 +223,7 @@ for(var in 1:10){
   cvResults[,var] <-cvFitModelResults$overall
 }
 
-#head(cvFitModelResults)
+head(cvResults)
 ```
 
 ##### Random Forest accuracy is 0.99 hence more accurate than earlier prediction.
