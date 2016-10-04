@@ -297,7 +297,9 @@ resultsAfter</code></pre>
 ## Balanced Accuracy      0.7118  0.65107  0.62567  0.71564  0.92841</code></pre>
 <div id="even-with-preprocessing-the-accuracy-is-around-0.5-its-not-convincing-so-not-acceptable" class="section level4">
 <h4>Even with PreProcessing, the Accuracy is around 0.5 its not convincing so not acceptable</h4>
-<p>## Random Forest</p>
+</div>
+<div id="use-random-forest" class="section level4">
+<h4>Use Random Forest</h4>
 <pre class="r"><code> data &lt;- training.clean
  data$classe &lt;- as.numeric(training.clean$classe)
  corr &lt;- data.frame(cor(data[,-c(1)]))
@@ -427,6 +429,12 @@ for(var in 1:10){
 }
 
 #head(cvFitModelResults)</code></pre>
+<div id="random-forest-accuracy-is-0.99-hence-more-accurate-than-earlier-prediction." class="section level4">
+<h4>Random Forest accuracy is 0.99 hence more accurate than earlier prediction.</h4>
+<div id="con-quite-a-lengthy-process-unlike-other-predition-models" class="section level5">
+<h5>Con: quite a lengthy process unlike other predition models</h5>
+</div>
+</div>
 </div>
 
 
