@@ -113,19 +113,21 @@ NAPercent <- sumOfNA/(dim(training.clean)[1])
 training.clean <- training.clean[,!(NAPercent > 0.95)]
 
 ## after removing NA's which are more than 95%
-dim(training.clean) 
+table(training.clean$classe)
 
 ```
 
 ## Partition Data
 
 ```{r partation data}
+
 set.seed(100)
 nLen <- length(training.clean)
 
 
 inTraining <- createDataPartition(training.clean$classe, p = .6)[[1]]
-training.clean <- training.clean[inTraining,]; testing.clean <- training.clean[-inTraining,]
+training.clean <- training.clean[inTraining,]
+testing.clean <- training.clean[-inTraining,]
 
 dim(training.clean)
 
@@ -186,6 +188,8 @@ fitModelFullBlown <- randomForest(classe ~., data= training.clean)
 resultsFullBlown <- confusionMatrix(testing.clean$classe, predict(fitModelFullBlown, newdata = testing.clean, type = "class"))
 
 ### show full results
+rfPred <- predict(fitModelFullBlown, newdata = testing.clean, type = "class")
+
 resultsFullBlown
 
 ```
@@ -193,12 +197,12 @@ resultsFullBlown
 # Cross Validation
 ```{r crossvalidation}
 set.seed =100
+ 
 
-dim(training.clean) 
+splits <- split(training.clean, f =rep_len(1:20, nrow(training.clean) ))
 
-
-splits <- split(training.clean, f =rep_len(1:10, nrow(training.clean) ))
-
+ddply(training.clean,.(classe),function(x){return(x[1,])})
+#do.call(rbind, lapply(splits, function(x) x[1,]))
 
 ### fix 10 equal data size
  allData <- function(index) {
@@ -210,8 +214,7 @@ splits <- split(training.clean, f =rep_len(1:10, nrow(training.clean) ))
 
 
  cvResults <- as.data.frame(matrix(nrow = 7, ncol = 10))
- dim(cvResults)
- 
+  
 index <- 1:10
  
 
@@ -223,7 +226,7 @@ for(var in 1:10){
   cvResults[,var] <-cvFitModelResults$overall
 }
 
-head(cvResults)
+
 ```
 
 ##### Random Forest accuracy is 0.99 hence more accurate than earlier prediction.
