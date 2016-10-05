@@ -224,6 +224,7 @@ tc &lt;- trainControl(method = &quot;cv&quot;, number = 10)
 
 ### model fititng
 set.seed(100)
+
 fitModel &lt;- train(classe ~., method=&quot;rpart&quot;, data=training.clean, trControl = tc)
 
 results &lt;- confusionMatrix(testing.clean$classe, predict(fitModel, newdata = testing.clean))
@@ -305,7 +306,9 @@ resultsAfter</code></pre>
 </div>
 <div id="use-random-forest" class="section level4">
 <h4>Use Random Forest</h4>
-<pre class="r"><code> data &lt;- training.clean
+<pre class="r"><code> set.seed(1234)
+
+ data &lt;- training.clean
  data$classe &lt;- as.numeric(training.clean$classe)
  corr &lt;- data.frame(cor(data[,-c(1)]))
  corr$name &lt;- names(data[2:52])
@@ -398,10 +401,11 @@ resultsFullBlown</code></pre>
 ## Detection Rate         0.2821    0.196   0.1745   0.1628   0.1845
 ## Detection Prevalence   0.2821    0.196   0.1745   0.1628   0.1845
 ## Balanced Accuracy      1.0000    1.000   1.0000   1.0000   1.0000</code></pre>
-<pre class="r"><code>### show classe Prediction
- classePredition&lt;-predict(fitModelFullBlown, newdata = testing.clean, type = &quot;class&quot;)
+<pre class="r"><code>set.seed(50)
+### show classe Prediction
+ pred&lt;-predict(fitModelFullBlown, newdata = testing.clean, type = &quot;class&quot;)
 
-head(classePredition, 20)</code></pre>
+head(pred, 20)</code></pre>
 <pre><code>##  3  4 13 16 20 23 24 26 33 36 41 43 52 53 54 55 62 64 68 71 
 ##  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A 
 ## Levels: A B C D E</code></pre>
@@ -438,7 +442,17 @@ for(var in 1:10){
    cvFitModelResults &lt;- confusionMatrix(splits[[var]]$classe, predict(cvFitModel, type = &quot;class&quot;, newdata = splits[[var]]))
   
   cvResults[,var] &lt;-cvFitModelResults$overall
-}</code></pre>
+}
+
+cvResults[1]</code></pre>
+<pre><code>##              V1
+## 1  9.830221e-01
+## 2  9.785133e-01
+## 3  9.689992e-01
+## 4  9.918292e-01
+## 5  2.869270e-01
+## 6 4.920817e-295
+## 7           NaN</code></pre>
 <div id="random-forest-accuracy-is-0.99-hence-more-accurate-than-earlier-prediction." class="section level5">
 <h5>Random Forest accuracy is 0.99 hence more accurate than earlier prediction.</h5>
 <div id="con-quite-a-lengthy-process-unlike-other-prediction-models" class="section level6">

@@ -140,6 +140,7 @@ tc <- trainControl(method = "cv", number = 10)
 
 ### model fititng
 set.seed(100)
+
 fitModel <- train(classe ~., method="rpart", data=training.clean, trControl = tc)
 
 results <- confusionMatrix(testing.clean$classe, predict(fitModel, newdata = testing.clean))
@@ -161,9 +162,10 @@ resultsAfter
 #### Even with PreProcessing, the Accuracy is around 0.5 its not convincing so not acceptable
 
 #### Use Random Forest
- 
 ```{r randomForest}
- 
+
+ set.seed(1234)
+
  data <- training.clean
  data$classe <- as.numeric(training.clean$classe)
  corr <- data.frame(cor(data[,-c(1)]))
@@ -189,11 +191,12 @@ resultsFullBlown <- confusionMatrix(testing.clean$classe, predict(fitModelFullBl
 
 resultsFullBlown
 
-
+set.seed(50)
 ### show classe Prediction
  pred<-predict(fitModelFullBlown, newdata = testing.clean, type = "class")
 
 head(pred, 20)
+
 
 # dt = as.data.table(classePredition)
 # dt[, list(a= 1:20, y = classePredition[1]), by=as.factor(classePredition)]
@@ -231,6 +234,7 @@ for(var in 1:10){
   cvResults[,var] <-cvFitModelResults$overall
 }
 
+cvResults[1]
 
 ```
 
