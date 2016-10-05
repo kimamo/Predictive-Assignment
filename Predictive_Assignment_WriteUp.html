@@ -366,9 +366,6 @@ rfResults</code></pre>
 fitModelFullBlown &lt;- randomForest(classe ~., data= training.clean)
 resultsFullBlown &lt;- confusionMatrix(testing.clean$classe, predict(fitModelFullBlown, newdata = testing.clean, type = &quot;class&quot;))
 
-### show full results
-rfPred &lt;- predict(fitModelFullBlown, newdata = testing.clean, type = &quot;class&quot;)
-
 resultsFullBlown</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -401,6 +398,15 @@ resultsFullBlown</code></pre>
 ## Detection Rate         0.2821    0.196   0.1745   0.1628   0.1845
 ## Detection Prevalence   0.2821    0.196   0.1745   0.1628   0.1845
 ## Balanced Accuracy      1.0000    1.000   1.0000   1.0000   1.0000</code></pre>
+<pre class="r"><code>### show classe Prediction
+ classePredition&lt;-predict(fitModelHighCorr, newdata = testing.clean, type = &quot;class&quot;)
+
+head(classePredition, 20)</code></pre>
+<pre><code>##  3  4 13 16 20 23 24 26 33 36 41 43 52 53 54 55 62 64 68 71 
+##  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A  A 
+## Levels: A B C D E</code></pre>
+<pre class="r"><code># dt = as.data.table(classePredition)
+# dt[, list(a= 1:20, y = classePredition[1]), by=as.factor(classePredition)]</code></pre>
 </div>
 </div>
 <div id="cross-validation" class="section level1">
@@ -409,81 +415,7 @@ resultsFullBlown</code></pre>
  
 
 splits &lt;- split(training.clean, f =rep_len(1:20, nrow(training.clean) ))
-
-ddply(training.clean,.(classe),function(x){return(x[1,])})</code></pre>
-<pre><code>##   pitch_belt yaw_belt total_accel_belt gyros_belt_x gyros_belt_y
-## 1       8.07   -94.40                3         0.00         0.00
-## 2      26.40    -3.91               20        -0.42        -0.03
-## 3      24.80    -0.96               20        -0.32        -0.06
-## 4       6.73   -93.40                3        -0.02         0.00
-## 5      43.70   -82.30                1         1.88         0.08
-##   gyros_belt_z accel_belt_x accel_belt_y accel_belt_z magnet_belt_x
-## 1        -0.02          -20            5           23            -2
-## 2        -0.44          -43           72         -178             1
-## 3        -0.41          -41           68         -175            11
-## 4         0.00          -18            5           20             3
-## 5         0.05           -2           -6            8           409
-##   magnet_belt_y magnet_belt_z roll_arm pitch_arm yaw_arm total_accel_arm
-## 1           600          -305   -128.0     22.50  -161.0              34
-## 2           576          -370    -26.7      0.65  -103.0               8
-## 3           581          -370     99.8     -4.24   -37.8              49
-## 4           605          -312     54.3     -3.45    68.4              17
-## 5           511          -244    125.0    -46.80   -43.7              35
-##   gyros_arm_x gyros_arm_y gyros_arm_z accel_arm_x accel_arm_y accel_arm_z
-## 1        0.02       -0.02       -0.02        -289         110        -126
-## 2        1.40       -0.51        0.07          20           6          77
-## 3        1.94       -1.83        0.95         387        -186        -215
-## 4       -1.09        0.35        0.03        -104         132          31
-## 5        2.91       -0.69       -0.15         156          44        -307
-##   magnet_arm_x magnet_arm_y magnet_arm_z roll_dumbbell pitch_dumbbell
-## 1         -368          344          513     12.850750     -70.278120
-## 2         -232          385          537     -8.134233      25.822571
-## 3          588         -249         -349    -20.264017      23.011587
-## 4          198          201          578     95.014098       6.426772
-## 5          613         -198         -319     55.469831       6.875244
-##   yaw_dumbbell total_accel_dumbbell gyros_dumbbell_x gyros_dumbbell_y
-## 1    -85.14078                   37             0.00            -0.02
-## 2    129.95001                    9             0.48            -0.13
-## 3    126.17123                    8             0.82             0.26
-## 4     61.62896                    5             0.02             0.08
-## 5    101.08411                    4            -0.31             0.16
-##   gyros_dumbbell_z accel_dumbbell_x accel_dumbbell_y accel_dumbbell_z
-## 1             0.00             -232               46             -270
-## 2            -0.18               22               -7               83
-## 3            -0.84               17              -15               71
-## 4            -0.07                3               38               27
-## 5             0.05                3               23               37
-##   magnet_dumbbell_x magnet_dumbbell_y magnet_dumbbell_z roll_forearm
-## 1              -561               298               -63         28.3
-## 2               524              -529               -94        113.0
-## 3               545              -497               -83        136.0
-## 4              -500               364               -10       -131.0
-## 5              -468               190               275       -114.0
-##   pitch_forearm yaw_forearm total_accel_forearm gyros_forearm_x
-## 1         -63.9      -152.0                  36            0.03
-## 2          13.4        81.6                  35            0.22
-## 3          17.0        98.9                  37           -0.67
-## 4          29.6      -106.0                  26            0.47
-## 5          26.0       137.0                  32           -0.05
-##   gyros_forearm_y gyros_forearm_z accel_forearm_x accel_forearm_y
-## 1           -0.02            0.00             196             204
-## 2            0.10            0.20             108             274
-## 3            2.79            0.69              78             330
-## 4            1.85            0.31             -79            -164
-## 5           -0.27           -0.72            -182             172
-##   accel_forearm_z magnet_forearm_x magnet_forearm_y magnet_forearm_z
-## 1            -213              -18              658              469
-## 2            -173             -238              775              690
-## 3            -120             -447              801              884
-## 4            -173             -244             -461              245
-## 5             185            -1130             1400             -863
-##   classe
-## 1      A
-## 2      B
-## 3      C
-## 4      D
-## 5      E</code></pre>
-<pre class="r"><code>#do.call(rbind, lapply(splits, function(x) x[1,]))
+ 
 
 ### fix 10 equal data size
  allData &lt;- function(index) {
