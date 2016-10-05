@@ -399,7 +399,7 @@ resultsFullBlown</code></pre>
 ## Detection Prevalence   0.2821    0.196   0.1745   0.1628   0.1845
 ## Balanced Accuracy      1.0000    1.000   1.0000   1.0000   1.0000</code></pre>
 <pre class="r"><code>### show classe Prediction
- classePredition&lt;-predict(fitModelHighCorr, newdata = testing.clean, type = &quot;class&quot;)
+ classePredition&lt;-predict(fitModelFullBlown, newdata = testing.clean, type = &quot;class&quot;)
 
 head(classePredition, 20)</code></pre>
 <pre><code>##  3  4 13 16 20 23 24 26 33 36 41 43 52 53 54 55 62 64 68 71 
@@ -415,7 +415,8 @@ head(classePredition, 20)</code></pre>
  
 
 splits &lt;- split(training.clean, f =rep_len(1:20, nrow(training.clean) ))
- 
+
+# do.call(rbind, lapply(splits[[1:20]][1], function(x) x[1,]))
 
 ### fix 10 equal data size
  allData &lt;- function(index) {

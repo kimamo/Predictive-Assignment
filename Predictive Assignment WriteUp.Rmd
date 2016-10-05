@@ -191,9 +191,9 @@ resultsFullBlown
 
 
 ### show classe Prediction
- classePredition<-predict(fitModelHighCorr, newdata = testing.clean, type = "class")
+ pred<-predict(fitModelFullBlown, newdata = testing.clean, type = "class")
 
-head(classePredition, 20)
+head(pred, 20)
 
 # dt = as.data.table(classePredition)
 # dt[, list(a= 1:20, y = classePredition[1]), by=as.factor(classePredition)]
@@ -206,7 +206,8 @@ set.seed =100
  
 
 splits <- split(training.clean, f =rep_len(1:20, nrow(training.clean) ))
- 
+
+# do.call(rbind, lapply(splits[[1:20]][1], function(x) x[1,]))
 
 ### fix 10 equal data size
  allData <- function(index) {
